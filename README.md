@@ -26,6 +26,10 @@ Requires **Python 3.10+** (the code uses `X | Y` type-union syntax).
 
 Requires an account with read permissions in the target tenant. Authenticate via **device code** (recommended when auditing client tenants from a separate browser profile) or interactive browser prompt. Delegated permissions only — no app registration, no stored credentials.
 
+## Demo / test data
+
+`python demo_report.py` writes two fully synthetic client reports (Fourth Coffee, Tailspin Toys) to `demo_output/` — same Excel/CSV output path as a live audit, built from RFC 2606 reserved `.example` domains and fictional names, with no network calls and no sign-in. Use it for screenshots, demos, and regression-testing the report format without touching client data.
+
 ## Packaging
 
 `EntraSecurityAudit.spec` is a PyInstaller spec that builds a single windowed `EntraSecurityAudit.exe` — no Python required on the operator's machine:
