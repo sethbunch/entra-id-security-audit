@@ -22,6 +22,8 @@ pip install -r requirements.txt
 python audit_gui.py
 ```
 
+Requires **Python 3.10+** (the code uses `X | Y` type-union syntax).
+
 Requires an account with read permissions in the target tenant. Authenticate via **device code** (recommended when auditing client tenants from a separate browser profile) or interactive browser prompt. Delegated permissions only — no app registration, no stored credentials.
 
 ## Packaging

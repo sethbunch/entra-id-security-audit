@@ -1,8 +1,6 @@
-import argparse
 import csv
 from datetime import datetime, timezone
 from pathlib import Path
-import sys
 import msal
 from openpyxl import Workbook
 from openpyxl.styles import Font, PatternFill
@@ -76,6 +74,8 @@ def graph_get_paginated(access_token: str, url: str, params: dict | None = None,
 
         if response.status_code != 200:
             if optional and response.status_code in (400, 403, 404):
+                # TODO: surface skipped endpoints (e.g. "Conditional Access: skipped (no consent)")
+                # to the GUI log so an empty tab reads as "not consented", not "no findings".
                 return []
             raise RuntimeError(f"Graph API error on {url} ({response.status_code}): {response.text}")
 
@@ -162,6 +162,8 @@ def audit_privileged_roles(token: str, user_rows: list[list]) -> list[list]:
         for member in role.get("members", []):
             odata_type = member.get("@odata.type", "")
             member_type = "User" if "user" in odata_type else ("ServicePrincipal" if "servicePrincipal" in odata_type else "Group")
+            # TODO: expand group members via /groups/{id}/members so nested users appear
+            # with their own MFA status instead of the group object only.
             upn = member.get("userPrincipalName") or member.get("appId") or member.get("id", "N/A")
             display_name = member.get("displayName", "N/A")
 
@@ -378,7 +380,7 @@ def export_to_excel(
     global_admins = [r for r in role_rows if r[0] == "Global Administrator"]
     enabled_ca = [r for r in ca_rows if r[1] == "enabled"]
     legacy_block_ca = [r for r in enabled_ca if ("exchangeActiveSync" in r[3] or "other" in r[3]) and "block" in r[4].lower()]
-    flagged_apps = [r for r in app_rows if "EXPIRED" in r[5] or "EXPIRING" in r[5] or r[6] != "None"]
+    flagged_apps = [r for r in app_rows if "EXPIRED" in r[5] or "EXPIRING" in r[5] or "EXCESSIVE" in r[5] or r[6] != "None"]
 
     ws_summary = wb.active
     ws_summary.title = "Executive Summary"
